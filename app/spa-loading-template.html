@@ -1,0 +1,275 @@
+<!-- Shown by Nuxt before the JavaScript bundle starts (ssr: false), then removed once
+     the app has mounted. Plain HTML/CSS only: Vue, Vuetify, and main.css are not loaded yet.
+     Colors and the shimmer mirror the --sk-* tokens and .sk-skel in assets/css/main.css. -->
+<div class="skb" role="status" aria-label="Loading ShopKart">
+  <script>
+    // Same theme rules as utils/theme.ts, so dark-mode visitors never see a light flash.
+    (function () {
+      var theme
+      try { theme = localStorage.getItem('shopkart-theme') } catch (e) {}
+      if (theme !== 'light' && theme !== 'dark') {
+        theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      }
+      document.documentElement.dataset.theme = theme
+      if (location.pathname.indexOf('/products') === 0) document.currentScript.parentElement.classList.add('skb-admin')
+    })()
+  </script>
+
+  <style>
+    .skb {
+      --bg: #f3f8fd;
+      --hero: linear-gradient(180deg, #d6e5f4 0%, #e8f0f9 60%, #f3f8fd 100%);
+      --surface: #ffffff;
+      --border: #e1eaf4;
+      --glass: rgba(255, 255, 255, 0.6);
+      --base: rgba(34, 58, 94, 0.07);
+      --shine: rgba(255, 255, 255, 0.65);
+
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
+    }
+
+    html[data-theme='dark'] .skb {
+      --bg: #0b1422;
+      --hero: linear-gradient(180deg, #13243c 0%, #0f1c2f 60%, #0b1422 100%);
+      --surface: #121d2e;
+      --border: #22324a;
+      --glass: rgba(18, 29, 46, 0.72);
+      --base: rgba(255, 255, 255, 0.07);
+      --shine: rgba(255, 255, 255, 0.06);
+    }
+
+    html[data-theme='dark'] { background: #0b1422; }
+
+    .skb * { box-sizing: border-box; }
+
+    .skb-b {
+      position: relative;
+      display: block;
+      overflow: hidden;
+      background: var(--base);
+      border-radius: 8px;
+    }
+
+    .skb-b::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent 0%, var(--shine) 50%, transparent 100%);
+      animation: skb-sweep 1.4s ease-in-out infinite;
+    }
+
+    @keyframes skb-sweep { to { transform: translateX(100%); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .skb-b::after { display: none; }
+    }
+
+    .skb-pill { border-radius: 999px; }
+
+    .skb-wrap {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* App bar */
+    .skb-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 60px;
+      margin-top: 12px;
+      padding: 0 14px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+    }
+
+    .skb-logo { display: block; width: 32px; height: 32px; border-radius: 10px; }
+    .skb-grow { flex: 1 1 auto; }
+    .skb-icon { width: 26px; height: 26px; border-radius: 50%; }
+
+    /* Hero */
+    .skb-hero { background: var(--hero); padding-bottom: 40px; }
+
+    .skb-hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+      padding-top: 36px;
+    }
+
+    .skb-title { height: 40px; margin-top: 12px; }
+    .skb-bento {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+      height: 260px;
+    }
+
+    .skb-tile {
+      padding: 10px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+    }
+
+    .skb-tile .skb-b { width: 100%; height: 100%; border-radius: 14px; }
+    .skb-tile-main { grid-row: span 2; }
+
+    /* Product grid */
+    .skb-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .skb-card {
+      padding: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+
+    .skb-card-img { aspect-ratio: 1 / 0.86; border-radius: 14px; }
+    .skb-card-body { padding: 12px 4px 4px; }
+    .skb-hide-sm { display: none; }
+
+    @media (min-width: 600px) {
+      .skb-nav { margin-top: 12px; }
+      .skb-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+      .skb-card { padding: 10px; border-radius: 22px; }
+    }
+
+    @media (min-width: 960px) {
+      .skb-hero-grid { grid-template-columns: 1fr 1fr; align-items: center; padding-top: 56px; }
+      .skb-bento { height: 420px; gap: 16px; }
+      .skb-tile { border-radius: 28px; padding: 14px; }
+      .skb-title { height: 56px; }
+      .skb-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .skb-hide-sm { display: grid; }
+    }
+
+    /* Product Management (/products): plain header and one card */
+    .skb-admin-only { display: none; }
+    .skb.skb-admin .skb-store-only { display: none; }
+    .skb.skb-admin .skb-admin-only { display: block; }
+
+    .skb-admin-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 72px;
+    }
+
+    .skb-admin-card {
+      max-width: 400px;
+      margin: 10vh auto 0;
+      padding: 32px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+    }
+  </style>
+
+  <!-- Storefront -->
+  <div class="skb-store-only">
+    <div class="skb-hero">
+      <div class="skb-wrap">
+        <div class="skb-nav">
+          <span class="skb-b skb-logo"></span>
+          <span class="skb-b" style="width: 104px; height: 16px"></span>
+          <span class="skb-grow"></span>
+          <span class="skb-b skb-icon"></span>
+          <span class="skb-b skb-icon"></span>
+          <span class="skb-b skb-icon"></span>
+        </div>
+
+        <div class="skb-hero-grid">
+          <div>
+            <span class="skb-b skb-pill" style="width: 190px; height: 30px"></span>
+            <span class="skb-b skb-title" style="width: 88%; margin-top: 20px"></span>
+            <span class="skb-b skb-title" style="width: 70%"></span>
+            <span class="skb-b" style="width: 100%; max-width: 460px; height: 14px; margin-top: 22px"></span>
+            <span class="skb-b" style="width: 92%; max-width: 420px; height: 14px; margin-top: 10px"></span>
+            <span class="skb-b" style="width: 60%; max-width: 300px; height: 14px; margin-top: 10px"></span>
+            <span class="skb-b skb-pill" style="width: 160px; height: 52px; margin-top: 28px"></span>
+          </div>
+
+          <div class="skb-bento">
+            <div class="skb-tile skb-tile-main"><span class="skb-b"></span></div>
+            <div class="skb-tile"><span class="skb-b"></span></div>
+            <div class="skb-tile"><span class="skb-b"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="skb-wrap">
+      <div class="skb-grid">
+        <div class="skb-card">
+          <span class="skb-b skb-card-img"></span>
+          <div class="skb-card-body">
+            <span class="skb-b" style="width: 40%; height: 10px"></span>
+            <span class="skb-b" style="width: 80%; height: 14px; margin-top: 8px"></span>
+            <span class="skb-b skb-pill" style="height: 36px; margin-top: 16px"></span>
+          </div>
+        </div>
+        <div class="skb-card">
+          <span class="skb-b skb-card-img"></span>
+          <div class="skb-card-body">
+            <span class="skb-b" style="width: 40%; height: 10px"></span>
+            <span class="skb-b" style="width: 80%; height: 14px; margin-top: 8px"></span>
+            <span class="skb-b skb-pill" style="height: 36px; margin-top: 16px"></span>
+          </div>
+        </div>
+        <div class="skb-card skb-hide-sm">
+          <span class="skb-b skb-card-img"></span>
+          <div class="skb-card-body">
+            <span class="skb-b" style="width: 40%; height: 10px"></span>
+            <span class="skb-b" style="width: 80%; height: 14px; margin-top: 8px"></span>
+            <span class="skb-b skb-pill" style="height: 36px; margin-top: 16px"></span>
+          </div>
+        </div>
+        <div class="skb-card skb-hide-sm">
+          <span class="skb-b skb-card-img"></span>
+          <div class="skb-card-body">
+            <span class="skb-b" style="width: 40%; height: 10px"></span>
+            <span class="skb-b" style="width: 80%; height: 14px; margin-top: 8px"></span>
+            <span class="skb-b skb-pill" style="height: 36px; margin-top: 16px"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Management -->
+  <div class="skb-admin-only">
+    <div class="skb-wrap">
+      <div class="skb-admin-bar">
+        <span class="skb-b skb-logo"></span>
+        <span class="skb-b" style="width: 104px; height: 16px"></span>
+        <span class="skb-grow"></span>
+        <span class="skb-b skb-icon"></span>
+        <span class="skb-b skb-icon"></span>
+      </div>
+      <div class="skb-admin-card">
+        <span class="skb-b" style="width: 56px; height: 56px; margin: 0 auto; border-radius: 16px"></span>
+        <span class="skb-b" style="width: 60%; height: 20px; margin: 20px auto 0"></span>
+        <span class="skb-b" style="width: 80%; height: 12px; margin: 12px auto 0"></span>
+        <span class="skb-b" style="height: 44px; margin-top: 28px"></span>
+        <span class="skb-b" style="height: 44px; margin-top: 12px"></span>
+        <span class="skb-b" style="height: 46px; margin-top: 18px"></span>
+      </div>
+    </div>
+  </div>
+</div>

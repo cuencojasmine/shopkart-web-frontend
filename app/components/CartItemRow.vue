@@ -2,7 +2,7 @@
 <template>
   <v-card variant="flat" rounded="xl" class="sk-surface" :class="{ 'border-error': problem }">
     <div class="d-flex pa-3 ga-3">
-      <v-avatar rounded="lg" size="72" class="flex-shrink-0 sk-thumb">
+      <v-avatar rounded="lg" :size="xs ? 60 : 72" class="flex-shrink-0 sk-thumb">
         <v-img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" class="sk-product-img" />
         <v-icon v-else icon="image-off" color="grey" />
       </v-avatar>
@@ -26,8 +26,9 @@
           />
         </div>
 
-        <div class="d-flex align-center justify-space-between mt-2">
-          <div class="qty-control d-flex align-center">
+        <!-- Wraps the subtotal onto its own line when a long price does not fit beside the controls -->
+        <div class="d-flex flex-wrap align-center justify-space-between ga-2 mt-2">
+          <div class="qty-control d-flex align-center flex-shrink-0">
             <v-btn
               icon="minus"
               size="x-small"
@@ -56,7 +57,7 @@
             />
           </div>
 
-          <span class="font-weight-bold">{{ formatCurrency(cart.getSubtotal(item)) }}</span>
+          <span class="font-weight-bold text-no-wrap ml-auto">{{ formatCurrency(cart.getSubtotal(item)) }}</span>
         </div>
 
         <div v-if="problem" class="text-caption text-error mt-1">
@@ -68,8 +69,11 @@
 </template>
 
 <script setup lang="ts">
+import { useDisplay } from 'vuetify'
+
 const props = defineProps<{ item: CartItem }>()
 
+const { xs } = useDisplay()
 const cart = useCart()
 const problem = computed(() => cart.getItemProblem(props.item))
 

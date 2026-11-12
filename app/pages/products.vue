@@ -135,11 +135,41 @@
           </v-card-text>
         </v-card>
 
-        <!-- LOADING STATE -->
-        <div v-if="loading" class="text-center py-16">
-          <v-progress-circular indeterminate color="primary" size="50" />
-          <div class="mt-4 text-medium-emphasis">Loading products...</div>
-        </div>
+        <!-- LOADING STATE: skeleton rows shaped like the table (first load only;
+             later reloads after a save keep the table on screen) -->
+        <v-card v-if="loading && !products.length" rounded="lg" elevation="1" class="product-table-card" aria-busy="true" aria-label="Loading products">
+          <v-table>
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody aria-hidden="true">
+              <tr v-for="n in 5" :key="n">
+                <td><span class="sk-skel my-2" style="width: 70px; height: 70px; border-radius: 12px" /></td>
+                <td>
+                  <span class="sk-skel" style="width: 140px; height: 14px" />
+                  <span class="sk-skel mt-2" style="width: 220px; height: 10px" />
+                </td>
+                <td><span class="sk-skel sk-skel-pill" style="width: 84px; height: 24px" /></td>
+                <td><span class="sk-skel" style="width: 76px; height: 14px" /></td>
+                <td><span class="sk-skel sk-skel-pill" style="width: 40px; height: 24px" /></td>
+                <td><span class="sk-skel sk-skel-pill" style="width: 60px; height: 24px" /></td>
+                <td>
+                  <div class="d-flex justify-center ga-2">
+                    <span v-for="i in 3" :key="i" class="sk-skel sk-skel-circle" style="width: 28px; height: 28px" />
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card>
 
         <!-- EMPTY STATE -->
         <v-card

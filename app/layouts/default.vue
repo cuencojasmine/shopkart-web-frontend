@@ -5,7 +5,9 @@
 <template>
   <div class="shop-layout">
     <!-- ===== APP BAR (floating glass pill) ===== -->
-    <v-app-bar flat height="84" color="transparent" class="shop-header">
+    <!-- order=1 puts the app bar after the drawers in Vuetify's layout, so the cart and
+         wishlist drawers open full-height over the header instead of below it. -->
+    <v-app-bar flat height="84" color="transparent" class="shop-header" :order="1">
       <v-container class="py-0 px-3 px-sm-4">
         <nav class="nav-pill sk-glass d-flex align-center" aria-label="Main">
           <BrandLogo :small="xs" />

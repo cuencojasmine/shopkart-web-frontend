@@ -4,7 +4,7 @@
     v-model="wishlist.drawerOpen.value"
     location="right"
     temporary
-    :width="xs ? 340 : 400"
+    :width="xs ? width : 400"
     class="sk-drawer"
   >
     <div class="d-flex align-center pa-4">
@@ -19,7 +19,23 @@
 
     <v-divider />
 
-    <div v-if="!wishlist.count.value" class="d-flex flex-column align-center justify-center pa-8 text-center mt-10">
+    <!-- Saved ids are known right away, but product details come from Strapi -->
+    <div v-if="wishlist.count.value && !products.length && loading" class="pa-4" aria-busy="true" aria-label="Loading wishlist">
+      <div v-for="n in Math.min(wishlist.count.value, 4)" :key="n" class="sk-surface d-flex pa-3 ga-3 mb-3" aria-hidden="true">
+        <span class="sk-skel flex-shrink-0" style="width: 64px; height: 64px; border-radius: 12px" />
+        <div class="flex-grow-1">
+          <span class="sk-skel" style="width: 70%; height: 14px" />
+          <span class="sk-skel mt-2" style="width: 40%; height: 12px" />
+          <span class="sk-skel mt-2" style="width: 30%; height: 10px" />
+          <div class="d-flex ga-2 mt-3">
+            <span class="sk-skel" style="width: 104px; height: 28px" />
+            <span class="sk-skel" style="width: 64px; height: 28px" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else-if="!wishlist.count.value" class="d-flex flex-column align-center justify-center pa-8 text-center mt-10">
       <v-avatar color="pink" variant="tonal" size="96">
         <v-icon icon="heart" size="44" />
       </v-avatar>
@@ -96,7 +112,7 @@ const wishlist = useWishlist()
 const cart = useCart()
 const { products, loading } = useShopProducts()
 const { getProductImageUrl } = useStrapi()
-const { xs } = useDisplay()
+const { xs, width } = useDisplay()
 
 const wishlistProducts = computed(() =>
   products.value.filter((product) => wishlist.isInWishlist(product.documentId)),

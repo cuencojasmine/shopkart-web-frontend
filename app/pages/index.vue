@@ -33,7 +33,10 @@
 
             <div class="hero-stats d-flex ga-6 mt-8">
               <div>
-                <div class="stat-value"><BitsCountUp :to="products.length" :duration="1.2" /></div>
+                <div class="stat-value">
+                  <span v-if="isFirstLoad" class="sk-skel stat-skel" aria-label="Loading" />
+                  <BitsCountUp v-else :to="products.length" :duration="1.2" />
+                </div>
                 <div class="stat-label">Products</div>
               </div>
               <div>
@@ -72,10 +75,26 @@
                   </span>
                 </button>
               </template>
+              <!-- Loading: tiles shaped like the real ones (image + name/price label) -->
+              <template v-else-if="isFirstLoad">
+                <div
+                  v-for="n in 3"
+                  :key="n"
+                  class="hero-tile hero-tile-skel sk-glass"
+                  :class="n === 1 ? 'hero-tile-main' : 'hero-tile-side'"
+                  aria-hidden="true"
+                >
+                  <span v-if="n === 1" class="sk-skel sk-skel-pill tile-badge-skel" />
+                  <span class="sk-skel tile-img-skel" />
+                  <span class="tile-label">
+                    <span class="sk-skel" style="width: 55%; height: 12px" />
+                    <span class="sk-skel" style="width: 34%; height: 12px" />
+                  </span>
+                </div>
+              </template>
               <template v-else>
                 <div v-for="n in 3" :key="n" class="hero-tile sk-glass d-flex align-center justify-center" :class="n === 1 ? 'hero-tile-main' : 'hero-tile-side'">
-                  <v-progress-circular v-if="loading" indeterminate color="primary" />
-                  <v-icon v-else icon="shopping-bag" size="56" color="primary" class="opacity-40" />
+                  <v-icon icon="shopping-bag" size="56" color="primary" class="opacity-40" />
                 </div>
               </template>
             </div>
@@ -188,7 +207,8 @@
           <div class="sk-eyebrow">Catalog</div>
           <h2 class="sk-section-title">Our Products</h2>
         </div>
-        <span v-if="!loading && !error" class="text-body-2 text-medium-emphasis">
+        <span v-if="isFirstLoad" class="sk-skel" style="width: 110px; height: 14px" />
+        <span v-else-if="!error" class="text-body-2 text-medium-emphasis">
           Showing {{ filteredProducts.length }} of {{ products.length }}
         </span>
       </div>
@@ -240,10 +260,10 @@
         <v-btn size="small" variant="text" @click="clearFilters">Clear all</v-btn>
       </div>
 
-      <!-- LOADING -->
-      <v-row v-if="loading && !products.length" :dense="xs">
+      <!-- LOADING: placeholders shaped like ProductCard -->
+      <v-row v-if="isFirstLoad" :dense="xs" aria-busy="true" aria-label="Loading products">
         <v-col v-for="n in 8" :key="n" cols="6" md="4" lg="3">
-          <v-skeleton-loader type="image, article" class="rounded-xl" />
+          <ProductCardSkeleton />
         </v-col>
       </v-row>
 
@@ -320,6 +340,7 @@
                 :alt="`${promo.category} product`"
                 class="promo-img sk-product-img"
               />
+              <span v-else-if="isFirstLoad" class="sk-skel promo-skel" aria-hidden="true" />
               <v-icon v-else :icon="promo.icon" class="promo-icon" />
             </div>
           </div>
@@ -376,6 +397,14 @@ const notify = useNotify()
 const { xs } = useDisplay()
 const { getProductImageUrl } = useStrapi()
 const { products, loading, error, loadProducts } = useShopProducts()
+
+// Skeletons only on the first load. Later refreshes keep showing the products already on screen.
+// `!error` hides them when the request fails, `!loading` covers the moment before onMounted fires.
+const loaded = ref(false)
+watch(loading, (isLoading) => {
+  if (!isLoading) loaded.value = true
+})
+const isFirstLoad = computed(() => !products.value.length && !error.value && (loading.value || !loaded.value))
 
 // ===== Filters =====
 const search = ref('')
@@ -730,6 +759,42 @@ onMounted(() => {
 
 .hero-tile-side .tile-name {
   max-width: 100%;
+}
+
+/* Hero skeleton tiles */
+.hero-tile-skel {
+  pointer-events: none;
+}
+
+.tile-img-skel {
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: 18px;
+}
+
+.tile-badge-skel {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1;
+  width: 78px;
+  height: 22px;
+}
+
+.hero-tile-side .tile-label > .sk-skel {
+  margin: 3px 0;
+}
+
+.stat-skel {
+  width: 32px;
+  height: 1.4rem;
+  margin: 3px 0;
+}
+
+.promo-skel {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
 }
 
 /* ---------- Floating search ---------- */

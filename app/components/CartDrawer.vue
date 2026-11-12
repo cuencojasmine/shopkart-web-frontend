@@ -75,9 +75,10 @@
 import { useDisplay } from 'vuetify'
 
 const cart = useCart()
-const { xs } = useDisplay()
+const { xs, width } = useDisplay()
 
-const drawerWidth = computed(() => (xs.value ? 340 : 420))
+// Phones get the whole screen width so prices and quantity controls have room.
+const drawerWidth = computed(() => (xs.value ? width.value : 420))
 
 function goToCheckout() {
   cart.drawerOpen.value = false

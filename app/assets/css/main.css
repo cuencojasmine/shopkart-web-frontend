@@ -175,6 +175,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Nothing may make the page wider than the screen. On phones the browser otherwise widens
+   the layout viewport to fit (e.g. a click-spark canvas past the last card), which pushes
+   the right edge of the app bar and drawers off-screen. `clip` (unlike `hidden`) does not
+   create a scroll container, so sticky/fixed children keep working. */
+.v-application__wrap {
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
 /* Page sections land below the fixed app bar when scrolled to with #hash */
 section[id],
 [id='products'] {
@@ -274,6 +283,56 @@ section[id],
 
 .sk-scroll-x::-webkit-scrollbar {
   display: none;
+}
+
+/* ---------- Skeleton loading ----------
+   Grey placeholder blocks with a soft sweep, shown while products load.
+   Usage: <span class="sk-skel" style="width: 60%; height: 14px" />.
+   The same look is repeated in app/spa-loading-template.html (shown before Vue starts). */
+.sk-skel {
+  --sk-skel-base: rgba(var(--sk-brand-900-rgb), 0.07);
+  --sk-skel-shine: rgba(255, 255, 255, 0.65);
+
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--sk-skel-base);
+  border-radius: 8px;
+}
+
+.sk-skel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent 0%, var(--sk-skel-shine) 50%, transparent 100%);
+  animation: sk-skel-sweep 1.4s ease-in-out infinite;
+}
+
+html[data-theme='dark'] .sk-skel {
+  --sk-skel-base: rgba(255, 255, 255, 0.07);
+  --sk-skel-shine: rgba(255, 255, 255, 0.06);
+}
+
+.sk-skel-circle {
+  border-radius: 50%;
+}
+
+.sk-skel-pill {
+  border-radius: 999px;
+}
+
+@keyframes sk-skel-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* No sweep for reduced motion: a still placeholder is enough */
+@media (prefers-reduced-motion: reduce) {
+  .sk-skel::after {
+    display: none;
+  }
 }
 
 /* ---------- Theme switch (composables/useThemeMode.ts) ---------- */
