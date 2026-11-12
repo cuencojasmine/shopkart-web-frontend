@@ -1,29 +1,106 @@
 <!-- app/pages/products.vue -->
 <template>
   <v-layout class="product-layout">
-    <v-app-bar flat height="76" class="shop-header">
-      <v-container class="d-flex align-center">
-        <NuxtLink to="/" class="logo-link d-flex align-center ga-2">
-          <v-icon icon="mdi-cart" color="primary" size="38" />
-          <span class="text-h5 font-weight-bold text-black">
-            Shop<span class="text-primary">Kart</span>
-          </span>
-        </NuxtLink>
+    <v-app-bar flat height="72" class="shop-header" :class="{ 'shop-header--clear': !auth.isSignedIn.value }">
+      <v-container class="d-flex align-center ga-2">
+        <BrandLogo small />
 
         <v-spacer />
 
-        <v-btn to="/" variant="text" prepend-icon="mdi-home-outline">
-          Home
+        <v-btn to="/" variant="text" prepend-icon="store" class="d-none d-sm-flex">
+          Back to Store
         </v-btn>
+        <v-btn to="/" variant="text" icon="store" aria-label="Back to Store" class="d-flex d-sm-none" />
 
-        <v-btn color="primary" variant="tonal" prepend-icon="mdi-package-variant">
-          Manage Products
-        </v-btn>
+        <ThemeToggle />
+
+        <template v-if="auth.isSignedIn.value">
+          <v-btn
+            variant="tonal"
+            rounded="pill"
+            prepend-icon="log-out"
+            class="d-none d-sm-flex"
+            @click="signOut"
+          >
+            Sign out ({{ auth.username.value }})
+          </v-btn>
+          <v-btn
+            icon="log-out"
+            variant="text"
+            aria-label="Sign out"
+            class="d-flex d-sm-none"
+            @click="signOut"
+          />
+        </template>
       </v-container>
     </v-app-bar>
 
     <v-main class="product-page">
-      <v-container class="py-8">
+      <!-- ========================================
+           SIGN IN (only Store Manager accounts can change products)
+      ========================================= -->
+      <div v-if="!auth.isSignedIn.value" class="login-scene">
+        <!-- Sky backdrop: rings behind the card and clouds along the bottom -->
+        <div class="login-sky" aria-hidden="true">
+          <span class="login-ring login-ring--1" />
+          <span class="login-ring login-ring--2" />
+          <span class="login-ring login-ring--3" />
+          <span class="login-clouds" />
+        </div>
+
+        <section class="login-card" aria-labelledby="login-title">
+          <div class="login-icon">
+            <img src="/logo.png" alt="" width="34" height="34" />
+          </div>
+
+          <h1 id="login-title" class="login-title">Store Manager sign in</h1>
+          <p class="login-subtitle">
+            Add, edit and remove ShopKart products. Only Store Manager accounts can sign in.
+          </p>
+
+          <v-form ref="loginForm" class="login-form" @submit.prevent="signIn">
+            <v-text-field
+              v-model="credentials.identifier"
+              class="login-field"
+              placeholder="Email or username"
+              aria-label="Email or username"
+              prepend-inner-icon="mail"
+              variant="solo-filled"
+              density="comfortable"
+              flat
+              hide-details="auto"
+              autocomplete="username"
+              :rules="[(value) => !!value?.trim() || 'Email or username is required']"
+            />
+            <v-text-field
+              v-model="credentials.password"
+              class="login-field"
+              placeholder="Password"
+              aria-label="Password"
+              prepend-inner-icon="lock"
+              variant="solo-filled"
+              density="comfortable"
+              flat
+              hide-details="auto"
+              :type="showPassword ? 'text' : 'password'"
+              :append-inner-icon="showPassword ? 'eye' : 'eye-off'"
+              autocomplete="current-password"
+              :rules="[(value) => !!value || 'Password is required']"
+              @click:append-inner="showPassword = !showPassword"
+            />
+
+            <v-alert v-if="loginError" type="error" variant="tonal" density="compact" class="mb-4 text-left">
+              {{ loginError }}
+            </v-alert>
+
+            <v-btn type="submit" class="login-submit" size="large" block :loading="signingIn">
+              Sign in
+            </v-btn>
+          </v-form>
+        </section>
+      </div>
+
+      <v-container v-else class="py-8">
         <!-- PAGE HEADER -->
         <div class="d-flex flex-wrap align-center justify-space-between ga-4 mb-6">
           <div>
@@ -35,7 +112,7 @@
 
           <v-btn
             color="primary"
-            prepend-icon="mdi-plus"
+            prepend-icon="plus"
             size="large"
             @click="openCreateDialog"
           >
@@ -49,7 +126,7 @@
             <v-text-field
               v-model="search"
               label="Search product"
-              prepend-inner-icon="mdi-magnify"
+              prepend-inner-icon="search"
               variant="outlined"
               density="comfortable"
               clearable
@@ -71,7 +148,7 @@
           elevation="1"
         >
           <v-card-text class="text-center py-16">
-            <v-icon icon="mdi-package-variant" size="64" color="grey" />
+            <v-icon icon="package-open" size="64" color="grey" />
             <h3 class="mt-4">No Products Found</h3>
             <p class="text-medium-emphasis mt-2">
               Add your first product or try another search.
@@ -104,7 +181,7 @@
                       :alt="product.name"
                       cover
                     />
-                    <v-icon v-else icon="mdi-image-off" color="grey" />
+                    <v-icon v-else icon="image-off" color="grey" />
                   </v-avatar>
                 </td>
 
@@ -137,9 +214,9 @@
 
                 <td>
                   <div class="d-flex justify-center ga-1">
-                    <v-btn icon="mdi-eye" variant="text" color="info" size="small" @click="viewProduct(product)" />
-                    <v-btn icon="mdi-pencil" variant="text" color="primary" size="small" @click="openEditDialog(product)" />
-                    <v-btn icon="mdi-delete" variant="text" color="error" size="small" @click="openDeleteDialog(product)" />
+                    <v-btn icon="eye" variant="text" color="info" size="small" @click="viewProduct(product)" />
+                    <v-btn icon="pencil" variant="text" color="primary" size="small" @click="openEditDialog(product)" />
+                    <v-btn icon="trash" variant="text" color="error" size="small" @click="openDeleteDialog(product)" />
                   </div>
                 </td>
               </tr>
@@ -156,7 +233,7 @@
               <span class="text-h5 font-weight-bold">
                 {{ isEditing ? 'Edit Product' : 'Add Product' }}
               </span>
-              <v-btn icon="mdi-close" variant="text" @click="closeProductDialog" />
+              <v-btn icon="x" variant="text" @click="closeProductDialog" />
             </v-card-title>
 
             <v-divider />
@@ -239,10 +316,10 @@
             <!-- NO IMAGE PLACEHOLDER -->
             <div
               v-else
-              class="d-flex align-center justify-center bg-grey-lighten-3"
+              class="d-flex align-center justify-center no-image-panel"
               style="height: 250px"
             >
-              <v-icon icon="mdi-image-off" size="80" color="grey" />
+              <v-icon icon="image-off" size="80" color="grey" />
             </div>
 
             <!-- PRODUCT INFORMATION -->
@@ -304,7 +381,7 @@
         <v-dialog v-model="deleteDialog" max-width="450">
           <v-card rounded="xl">
             <v-card-text class="text-center pa-8">
-              <v-icon icon="mdi-delete-alert" size="60" color="error" />
+              <v-icon icon="trash" size="60" color="error" />
               <h2 class="text-h5 font-weight-bold mt-3">Delete Product?</h2>
               <p class="text-medium-emphasis mt-3">
                 Are you sure you want to delete
@@ -314,20 +391,22 @@
 
             <v-card-actions class="pa-5 pt-0">
               <v-btn variant="text" block @click="deleteDialog = false">Cancel</v-btn>
-              <v-btn color="error" block :loading="deleting" @click="deleteProduct">
-                Delete
-              </v-btn>
+              <!-- Hold-to-confirm instead of a single click. If the delete fails the
+                   dialog stays open and the button resets itself after resetAfter. -->
+              <BitsHoldButton
+                :key="selectedProduct?.documentId"
+                block
+                done-label="Deleting…"
+                @hold="deleteProduct"
+              >
+                <v-icon icon="trash" size="16" />
+                Hold to delete
+              </BitsHoldButton>
             </v-card-actions>
           </v-card>
         </v-dialog>
 
-        <!-- SNACKBAR (shows messages set by showSnackbar) -->
-        <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="3000" location="top right">
-          {{ snackbar.message }}
-          <template #actions>
-            <v-btn variant="text" icon="mdi-close" @click="snackbar.show = false" />
-          </template>
-        </v-snackbar>
+        <!-- Messages from showSnackbar appear as toasts (components/ToastStack.vue in app.vue) -->
       </v-container>
     </v-main>
   </v-layout>
@@ -345,8 +424,49 @@ useHead({
   title: 'Product Management | ShopKart',
 })
 
-const config = useRuntimeConfig()
-const STRAPI_URL = config.public.strapiUrl
+const { STRAPI_URL } = useStrapi()
+
+// Create, update, delete and upload need a signed-in Store Manager.
+// auth.authFetch() works like $fetch but adds "Authorization: Bearer <jwt>".
+const auth = useAuth()
+const loginForm = ref(null)
+const credentials = reactive({ identifier: '', password: '' })
+const showPassword = ref(false)
+const signingIn = ref(false)
+const loginError = ref('')
+
+async function signIn() {
+  const validation = await loginForm.value?.validate()
+  if (validation && !validation.valid) return
+
+  signingIn.value = true
+  loginError.value = ''
+
+  try {
+    await auth.login(credentials.identifier.trim(), credentials.password)
+    credentials.password = ''
+    showSnackbar(`Welcome, ${auth.username.value}!`, 'success')
+    await getProducts()
+  } catch (error) {
+    loginError.value = getApiErrorMessage(error, 'Unable to sign in.')
+  } finally {
+    signingIn.value = false
+  }
+}
+
+async function signOut() {
+  await auth.logout()
+  showSnackbar('Signed out.', 'info')
+}
+
+// If the session expires mid-task, close any open dialog so the sign-in form shows.
+watch(auth.isSignedIn, (signedIn) => {
+  if (!signedIn) {
+    productDialog.value = false
+    deleteDialog.value = false
+    viewDialog.value = false
+  }
+})
 
 // ===== 9. State variables =====
 const products = ref([])
@@ -396,11 +516,7 @@ const stockRules = [
   (value) => value >= 0 || 'Stock cannot be negative',
 ]
 
-const snackbar = reactive({
-  show: false,
-  message: '',
-  color: 'success',
-})
+const notify = useNotify()
 
 // ===== 12. Search filter =====
 const filteredProducts = computed(() => {
@@ -506,7 +622,7 @@ async function saveProduct() {
 
 // ===== 19. CREATE =====
 async function createProduct() {
-  const response = await $fetch(`${STRAPI_URL}/api/products`, {
+  const response = await auth.authFetch('/api/products', {
     method: 'POST',
     body: {
       data: {
@@ -539,7 +655,7 @@ async function uploadProductImage(productId) {
   formData.append('field', 'image')
 
   // Do not set Content-Type manually; the browser adds the multipart boundary.
-  await $fetch(`${STRAPI_URL}/api/upload`, {
+  await auth.authFetch('/api/upload', {
     method: 'POST',
     body: formData,
   })
@@ -549,8 +665,8 @@ async function uploadProductImage(productId) {
 async function updateProduct() {
   if (!selectedProduct.value) return
 
-  const response = await $fetch(
-    `${STRAPI_URL}/api/products/${selectedProduct.value.documentId}`,
+  const response = await auth.authFetch(
+    `/api/products/${selectedProduct.value.documentId}`,
     {
       method: 'PUT',
       body: {
@@ -580,8 +696,8 @@ async function deleteProduct() {
   deleting.value = true
 
   try {
-    await $fetch(
-      `${STRAPI_URL}/api/products/${selectedProduct.value.documentId}`,
+    await auth.authFetch(
+      `/api/products/${selectedProduct.value.documentId}`,
       { method: 'DELETE' },
     )
 
@@ -646,13 +762,16 @@ function getFileFromValue(value) {
 }
 
 // ===== 27.2 Snackbar and error helpers =====
+// color is 'success' | 'error' | 'warning' | 'info'
 function showSnackbar(message, color = 'success') {
-  snackbar.message = message
-  snackbar.color = color
-  snackbar.show = true
+  notify[color](message)
 }
 
 function getErrorMessage(error) {
+  if (error?.statusCode === 403) {
+    return 'This account is not allowed to manage products. Sign in as a Store Manager.'
+  }
+
   return (
     error?.data?.error?.message ||
     error?.data?.message ||
@@ -686,7 +805,8 @@ function closeProductDialog() {
 }
 
 onMounted(() => {
-  getProducts()
+  auth.restoreSession()
+  if (auth.isSignedIn.value) getProducts()
 })
 </script>
 
@@ -697,17 +817,206 @@ onMounted(() => {
 
 .product-page {
   min-height: 100vh;
-  background: #f5f7fb;
+  background: var(--sk-bg);
 }
 
 .shop-header {
-  background: #ffffff !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--sk-glass-bg) !important;
+  -webkit-backdrop-filter: var(--sk-glass-blur);
+  backdrop-filter: var(--sk-glass-blur);
+  border-bottom: 1px solid var(--sk-border);
 }
 
 .logo-link {
   text-decoration: none;
   white-space: nowrap;
+}
+
+/* ===== Store Manager sign-in ===== */
+.shop-header--clear {
+  background: transparent !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-bottom-color: transparent;
+}
+
+.login-scene {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 72px);
+  min-height: calc(100dvh - 72px);
+  padding: 32px 16px 72px;
+}
+
+/* Fixed so the sky also fills the area behind the transparent app bar */
+.login-sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--sk-login-sky);
+}
+
+/* Thin rings centered on the card, fading out toward the bottom */
+.login-ring {
+  position: absolute;
+  top: 54%;
+  left: 50%;
+  border: 1px solid var(--sk-login-ring);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 75%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 75%);
+}
+
+.login-ring--1 {
+  width: 620px;
+  height: 620px;
+}
+
+.login-ring--2 {
+  width: 900px;
+  height: 900px;
+}
+
+.login-ring--3 {
+  width: 1200px;
+  height: 1200px;
+}
+
+/* Soft cloud bank built from overlapping, blurred ellipses */
+.login-clouds {
+  position: absolute;
+  inset: auto -10% -6% -10%;
+  height: 52%;
+  filter: blur(14px);
+  background:
+    radial-gradient(ellipse 22% 38% at 6% 62%, var(--sk-login-cloud) 0%, transparent 70%),
+    radial-gradient(ellipse 18% 30% at 20% 48%, var(--sk-login-cloud) 0%, transparent 70%),
+    radial-gradient(ellipse 26% 42% at 34% 78%, var(--sk-login-cloud) 0%, transparent 72%),
+    radial-gradient(ellipse 20% 34% at 52% 70%, var(--sk-login-cloud) 0%, transparent 70%),
+    radial-gradient(ellipse 18% 32% at 68% 50%, var(--sk-login-cloud) 0%, transparent 70%),
+    radial-gradient(ellipse 24% 40% at 82% 66%, var(--sk-login-cloud) 0%, transparent 72%),
+    radial-gradient(ellipse 20% 36% at 96% 46%, var(--sk-login-cloud) 0%, transparent 70%),
+    linear-gradient(180deg, transparent 55%, var(--sk-login-cloud) 100%);
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+  padding: 32px 28px 28px;
+  text-align: center;
+  background: var(--sk-login-card);
+  border: 1px solid var(--sk-login-card-border);
+  border-radius: 24px;
+  box-shadow: var(--sk-login-card-shadow);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  animation: login-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.login-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 18px;
+  background: var(--sk-login-tile);
+  border: 1px solid var(--sk-login-card-border);
+  border-radius: 16px;
+  box-shadow:
+    0 10px 20px -10px rgba(var(--sk-brand-900-rgb), 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.login-icon img {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+}
+
+.login-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--sk-ink);
+}
+
+.login-subtitle {
+  max-width: 300px;
+  margin: 6px auto 24px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sk-muted);
+}
+
+.login-form {
+  text-align: left;
+}
+
+.login-field {
+  margin-bottom: 12px;
+}
+
+.login-field :deep(.v-field) {
+  background: var(--sk-login-field);
+  border-radius: 10px;
+  font-size: 14px;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.login-field :deep(.v-field--focused) {
+  background: var(--sk-login-field-focus);
+  box-shadow: 0 0 0 2px rgba(var(--sk-brand-500-rgb), 0.45);
+}
+
+.login-field :deep(.v-field__prepend-inner .v-icon),
+.login-field :deep(.v-field__append-inner .v-icon) {
+  font-size: 18px;
+  color: var(--sk-muted);
+  opacity: 1;
+}
+
+.login-field :deep(input::placeholder) {
+  color: var(--sk-placeholder);
+  opacity: 1;
+}
+
+.login-submit {
+  margin-top: 6px;
+  height: 46px !important;
+  border-radius: 10px;
+  color: var(--sk-login-btn-ink) !important;
+  background: var(--sk-login-btn) !important;
+  box-shadow:
+    0 10px 20px -10px rgba(var(--sk-brand-900-rgb), 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+@keyframes login-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 599px) {
+  .login-card {
+    padding: 28px 20px 24px;
+  }
 }
 
 .product-table-card {
@@ -724,12 +1033,16 @@ onMounted(() => {
 
 .image-preview {
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--sk-border);
   border-radius: 12px;
-  background: #f5f5f5;
+  background: var(--sk-img-tile);
 }
 
 .product-view-image {
-  background: #f8f9fa;
+  background: var(--sk-img-tile);
+}
+
+.no-image-panel {
+  background: var(--sk-tile);
 }
 </style>

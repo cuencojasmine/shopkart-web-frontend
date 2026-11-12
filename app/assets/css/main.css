@@ -1,0 +1,305 @@
+/* ShopKart design tokens and shared style helpers.
+   Style direction: Minimalism (base) + Bento Grid (homepage) + light Glassmorphism
+   (app bar, hero tiles, drawers) + Claymorphism accents (category tiles). */
+
+:root {
+  /* Fonts read by Vuetify 4 typography */
+  --v-font-body: 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
+  --v-font-heading: 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
+
+  /* Brand scale (Holst palette). Same values as the Vuetify theme colors brand-50 … brand-900,
+     so use color="primary" / bg-brand-200 in templates and these variables in CSS. */
+  --sk-brand-900: #223a5e; /* app bar text, headings, dark surfaces, primary hover */
+  --sk-brand-800: #355982; /* primary: buttons, links (7.2:1 on white) */
+  --sk-brand-700: #4d79a8; /* icons, focus rings, secondary actions (4.6:1 on white) */
+  --sk-brand-500: #6e9ecc; /* active borders, chart series */
+  --sk-brand-300: #9fc0e3; /* disabled states, soft accents */
+  --sk-brand-200: #d0e1f2; /* selected rows, badge backgrounds */
+  --sk-brand-50: #f3f8fd; /* page background */
+
+  /* RGB triplets for rgba(): rgba(var(--sk-brand-800-rgb), 0.1) */
+  --sk-brand-900-rgb: 34, 58, 94;
+  --sk-brand-800-rgb: 53, 89, 130;
+  --sk-brand-700-rgb: 77, 121, 168;
+  --sk-brand-500-rgb: 110, 158, 204;
+  --sk-brand-300-rgb: 159, 192, 227;
+
+  /* Neutrals for text and lines, kept slightly cool to sit with the blues */
+  --sk-ink: #0f172a;
+  --sk-muted: #5b6b80; /* 5.4:1 on white, 5.1:1 on brand-50 */
+  --sk-bg: var(--sk-brand-50);
+  --sk-surface: #ffffff;
+  --sk-border: #e1eaf4;
+  --sk-tile: #eef4fb;
+  --sk-navy: var(--sk-brand-900);
+
+  /* Semantic tokens: these are what change between light and dark */
+  --sk-ink-soft: #334155; /* nav links, icon buttons */
+  --sk-ink-subtle: #475569; /* hero copy */
+  --sk-placeholder: #94a3b8;
+  --sk-hover: rgba(15, 23, 42, 0.06);
+  --sk-selected: var(--sk-brand-200); /* active chip / tile fill */
+  --sk-accent-ink: var(--sk-brand-900); /* text on --sk-tile and --sk-selected */
+  --sk-img-tile: var(--sk-tile); /* product photo stage (stays light in dark mode) */
+  /* Light glass: a white sheen fading to clear, so the color behind shows through.
+     A white border alone vanishes on light pages, so the edge also gets a faint navy
+     hairline (--sk-glass-edge) and a bright inner top highlight (--sk-glass-sheen). */
+  --sk-glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.34) 100%);
+  --sk-glass-strong: rgba(255, 255, 255, 0.86);
+  --sk-glass-border: rgba(255, 255, 255, 0.8);
+  --sk-glass-edge: rgba(var(--sk-brand-900-rgb), 0.08);
+  --sk-glass-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(var(--sk-brand-500-rgb), 0.12);
+  --sk-glass-blur: blur(18px) saturate(180%);
+  --sk-drawer-bg: rgba(255, 255, 255, 0.8);
+  --sk-drawer-footer: rgba(243, 248, 253, 0.9);
+  --sk-clay-from: #ffffff;
+  --sk-clay-to: var(--sk-brand-50);
+  --sk-clay-border: #ffffff;
+  --sk-clay-highlight: rgba(255, 255, 255, 0.9);
+  --sk-clay-inset: rgba(148, 163, 184, 0.14);
+  --sk-hero-bg:
+    radial-gradient(circle at 85% 20%, rgba(var(--sk-brand-300-rgb), 0.55), transparent 45%),
+    radial-gradient(circle at 10% 90%, rgba(var(--sk-brand-500-rgb), 0.22), transparent 40%),
+    linear-gradient(180deg, #d6e5f4 0%, #e8f0f9 60%, var(--sk-bg) 100%);
+  --sk-promo-ink: var(--sk-brand-900);
+  --sk-promo-mist: linear-gradient(135deg, var(--sk-brand-300) 0%, var(--sk-brand-200) 100%);
+  --sk-promo-sky: linear-gradient(135deg, var(--sk-brand-200) 0%, #e4eef8 100%);
+  --sk-promo-mist-img: #c4daf0;
+  --sk-promo-sky-img: #e2edf8;
+
+  /* Store Manager sign-in (pages/products.vue): daytime sky with clouds */
+  --sk-login-sky: linear-gradient(180deg, #8fc3ea 0%, #b3d6f2 38%, #d7eaf8 70%, #eef6fc 100%);
+  --sk-login-cloud: rgba(255, 255, 255, 0.95);
+  --sk-login-ring: rgba(255, 255, 255, 0.55);
+  --sk-login-card: linear-gradient(180deg, rgba(212, 236, 251, 0.97) 0%, rgba(255, 255, 255, 0.97) 48%, #ffffff 100%);
+  --sk-login-card-border: rgba(255, 255, 255, 0.9);
+  --sk-login-card-shadow:
+    0 0 0 1px rgba(var(--sk-brand-900-rgb), 0.04),
+    0 30px 60px -24px rgba(var(--sk-brand-900-rgb), 0.35),
+    0 10px 24px -12px rgba(var(--sk-brand-500-rgb), 0.35);
+  --sk-login-tile: linear-gradient(180deg, #ffffff 0%, #f1f7fd 100%);
+  --sk-login-field: #eef1f6;
+  --sk-login-field-focus: #e6ecf4;
+  --sk-login-btn: linear-gradient(180deg, #3d4a5f 0%, var(--sk-brand-900) 55%, #16253d 100%);
+  --sk-login-btn-ink: #ffffff;
+
+  --sk-radius-sm: 12px;
+  --sk-radius: 18px;
+  --sk-radius-lg: 28px;
+
+  --sk-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 2px 8px rgba(15, 23, 42, 0.04);
+  --sk-shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.18);
+  --sk-shadow-lg: 0 24px 60px -20px rgba(var(--sk-brand-900-rgb), 0.35);
+  --sk-shadow-soft: rgba(var(--sk-brand-900-rgb), 0.22);
+}
+
+/* ---------- Dark theme (plugins/vuetify.ts sets <html data-theme="dark">) ---------- */
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  --sk-ink: #e6edf6;
+  --sk-muted: #93a4ba; /* 7.4:1 on --sk-bg */
+  --sk-bg: #0b1422;
+  --sk-surface: #121d2e;
+  --sk-border: #22324a;
+  --sk-tile: #1a2840;
+
+  --sk-ink-soft: #c3cfdd;
+  --sk-ink-subtle: #a9b7c8;
+  --sk-placeholder: #6b7d94;
+  --sk-hover: rgba(255, 255, 255, 0.08);
+  --sk-selected: rgba(var(--sk-brand-500-rgb), 0.24);
+  --sk-accent-ink: var(--sk-brand-200);
+  --sk-img-tile: #dbe5f0;
+  --sk-glass-bg: rgba(18, 29, 46, 0.72);
+  --sk-glass-strong: rgba(18, 29, 46, 0.92);
+  --sk-glass-border: rgba(255, 255, 255, 0.08);
+  --sk-glass-edge: rgba(0, 0, 0, 0.2);
+  --sk-glass-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --sk-glass-blur: blur(16px) saturate(160%);
+  --sk-drawer-bg: rgba(18, 29, 46, 0.94);
+  --sk-drawer-footer: rgba(11, 20, 34, 0.9);
+  --sk-clay-from: #18253a;
+  --sk-clay-to: #121d2e;
+  --sk-clay-border: rgba(255, 255, 255, 0.06);
+  --sk-clay-highlight: rgba(255, 255, 255, 0.05);
+  --sk-clay-inset: rgba(0, 0, 0, 0.25);
+  --sk-hero-bg:
+    radial-gradient(circle at 85% 20%, rgba(var(--sk-brand-700-rgb), 0.35), transparent 45%),
+    radial-gradient(circle at 10% 90%, rgba(var(--sk-brand-500-rgb), 0.12), transparent 40%),
+    linear-gradient(180deg, #13243c 0%, #0f1c2f 60%, var(--sk-bg) 100%);
+  --sk-promo-ink: var(--sk-brand-200);
+  --sk-promo-mist: linear-gradient(135deg, #2a4468 0%, #1d3150 100%);
+  --sk-promo-sky: linear-gradient(135deg, #1c2f4b 0%, #152338 100%);
+  --sk-promo-mist-img: var(--sk-img-tile);
+  --sk-promo-sky-img: var(--sk-img-tile);
+
+  /* Sign-in at night: navy sky, faint clouds */
+  --sk-login-sky: linear-gradient(180deg, #0b1422 0%, #10203a 45%, #18304f 80%, #1e3a5e 100%);
+  --sk-login-cloud: rgba(159, 192, 227, 0.16);
+  --sk-login-ring: rgba(159, 192, 227, 0.14);
+  --sk-login-card: linear-gradient(180deg, rgba(36, 58, 92, 0.96) 0%, rgba(20, 32, 51, 0.97) 50%, #121d2e 100%);
+  --sk-login-card-border: rgba(255, 255, 255, 0.08);
+  --sk-login-card-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(0, 0, 0, 0.25);
+  --sk-login-tile: linear-gradient(180deg, #24364f 0%, #1a2840 100%);
+  --sk-login-field: rgba(255, 255, 255, 0.06);
+  --sk-login-field-focus: rgba(255, 255, 255, 0.1);
+  --sk-login-btn: linear-gradient(180deg, #9cc2e8 0%, #7faedd 100%);
+  --sk-login-btn-ink: #0b1422;
+
+  --sk-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --sk-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  --sk-shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+  --sk-shadow-soft: rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- Lucide icons inside Vuetify (v-icon sets the size via font-size) ---------- */
+.v-icon > svg.lucide {
+  width: 100%;
+  height: 100%;
+}
+
+/* Lucide icons are outlines; add this class for a filled state (e.g. a wishlisted heart) */
+.sk-icon-fill svg.lucide {
+  fill: currentColor;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--v-font-body);
+  color: var(--sk-ink);
+  background: var(--sk-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Page sections land below the fixed app bar when scrolled to with #hash */
+section[id],
+[id='products'] {
+  scroll-margin-top: 96px;
+}
+
+/* ---------- Glassmorphism (kept mostly opaque so text stays readable) ---------- */
+.sk-glass {
+  background: var(--sk-glass-bg);
+  border: 1px solid var(--sk-glass-border);
+  box-shadow:
+    0 0 0 1px var(--sk-glass-edge),
+    var(--sk-glass-sheen),
+    0 8px 32px -12px var(--sk-shadow-soft);
+  -webkit-backdrop-filter: var(--sk-glass-blur);
+  backdrop-filter: var(--sk-glass-blur);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sk-glass {
+    background: var(--sk-surface);
+  }
+}
+
+/* ---------- Claymorphism accent (soft, puffy tiles) ---------- */
+.sk-clay {
+  background: linear-gradient(160deg, var(--sk-clay-from) 0%, var(--sk-clay-to) 100%);
+  border: 1px solid var(--sk-clay-border);
+  box-shadow:
+    0 14px 28px -14px var(--sk-shadow-soft),
+    inset 0 -6px 12px var(--sk-clay-inset),
+    inset 0 4px 8px var(--sk-clay-highlight);
+}
+
+/* ---------- Minimal surfaces ---------- */
+.sk-surface {
+  background: var(--sk-surface);
+  border: 1px solid var(--sk-border);
+  border-radius: var(--sk-radius);
+}
+
+.sk-surface > .v-divider,
+.sk-surface .v-card-text > .v-divider {
+  border-color: var(--sk-border);
+  opacity: 1;
+}
+
+.sk-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(var(--v-theme-primary));
+}
+
+.sk-section-title {
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--sk-ink);
+}
+
+/* Product photos: blends white JPG backgrounds into the light tile.
+   The tile color sits on the v-img itself because it is its own stacking context.
+   In dark mode the tile stays light (--sk-img-tile), since multiply on navy would blacken photos. */
+.sk-product-img {
+  background: var(--sk-img-bg, var(--sk-img-tile));
+}
+
+.sk-product-img img {
+  mix-blend-mode: multiply;
+}
+
+/* Small product thumbnail (cart, wishlist, admin table) */
+.sk-thumb {
+  background: var(--sk-img-tile) !important;
+}
+
+.sk-thumb img {
+  object-fit: contain !important;
+  padding: 4px;
+}
+
+/* Cart and wishlist drawers: frosted but nearly opaque, since they hold prices */
+.v-navigation-drawer.sk-drawer {
+  background: var(--sk-drawer-bg) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border-left: 1px solid var(--sk-glass-border) !important;
+}
+
+/* Hide scrollbar on horizontal chip / tile rows but keep them scrollable */
+.sk-scroll-x {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sk-scroll-x::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Theme switch (composables/useThemeMode.ts) ---------- */
+/* Elements jump straight to their new colors; the circular reveal is the only animation */
+html.sk-theme-switching *,
+html.sk-theme-switching *::before,
+html.sk-theme-switching *::after {
+  transition: none !important;
+}
+
+/* Replace the default cross-fade; the reveal is driven by element.animate() */
+html.sk-theme-switching::view-transition-old(root),
+html.sk-theme-switching::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
